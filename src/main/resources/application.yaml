@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    #数据库url
+    url: jdbc:mysql://localhost:3306/vue?serverTimezone=GMT%2B8&useSSL=false
+    # 数据库访问账户
+    username: root
+    # 数据库访问密码
+    password: mysql
+
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 5
+    minIdle: 5
+    maxIdle: 30
+    maxWait: 60000  #获取连接等待超时时间
+    timeBetweenEvictionRunsMillis: 60000  #关闭空闲连接间隔检测时间
+    minEvictableIdleTimeMillis: 300000  #单个连接在池中最小存活时间
+    filters: stat,wall,slf4j  #配置监控拦截的filters,去掉后无法统计sql,wall用于防火墙,日志可用log4j
+    useGlobalDataSourceStat: true #合并多个监控数据
+    loginUsername: druid
+    loginPassword:  druid
+    allow:  #ip白名单，为空时所有都可访问
+    #    deny: #ip黑名单，若与白名单冲突，优先级高于白名单
+    restEnable: true #禁用HTML页面的 Rest all 功能
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+
+server:
+  port: 8888
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml

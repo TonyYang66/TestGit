@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.user.dao.UserDao">
+
+    <resultMap id="UserMap" type="com.user.entity.UserEntity" >
+    <result column="id" property="id" ></result>
+    <result column="name" property="name" ></result>
+    <result column="age" property="age"></result>
+    <result column="sex" property="sex"></result>
+    <result column="address" property="address"></result>
+    <result column="email" property="email"></result>
+    <result column="region" property="region"></result>
+    </resultMap>
+
+    <resultMap id="SysMap" type="com.user.entity.SysCity">
+    <result column="id" property="id"></result>
+    <result column="cname" property="cname"></result>
+    <result column="pid" property="pid"></result>
+    </resultMap>
+
+    <insert id="insert">
+  INSERT INTO `user` (`name`, `age`, `sex`, `address`, `email`,region)
+  VALUES (#{userEntity.name}, #{userEntity.age}, #{userEntity.sex}, #{userEntity.address}, #{userEntity.email},#{userEntity.region})
+    </insert>
+    <update id="update">
+UPDATE user set `name` = #{userEntity.name},`age`=#{userEntity.age},`sex`=#{userEntity.sex},`address`=#{userEntity.address},`email`=#{userEntity.email},`region`=#{userEntity.region}
+WHERE id = #{userEntity.id}
+    </update>
+    <delete id="delById">
+        DELETE from user where id = #{id}
+    </delete>
+    <select id="search" resultType="com.user.entity.UserEntity">
+        SELECT user.id as id,name,age,sex,cname as address,email,region from user
+        join sys_city on address = sys_city.id
+    where 1 = 1
+        <if test="name != null">
+            <bind name="pattern" value="'%' + name + '%'"/>
+            AND name LIKE #{pattern}
+        </if>
+        <if test="sex == 'male' or sex =='female'">
+            AND sex = #{sex}
+        </if>
+    </select>
+    <select id="SelectTotals" resultType="java.lang.Integer">
+    SELECT count(*) from user
+    </select>
+    <select id="selectById" resultType="com.user.entity.UserEntity">
+         SELECT id,name,age,sex,address,email,region from user where id = #{id}
+    </select>
+    <select id="selectAllProvince" resultType="com.user.entity.SysCity">
+        SELECT id,cname,pid from sys_city where pid = 0
+    </select>
+    <select id="selectCityById" resultType="com.user.entity.SysCity">
+        SELECT id,cname,pid from sys_city where pid = #{id}
+    </select>
+    <select id="getRegion" resultType="java.lang.String">
+        select cname from sys_city where id  = #{id}
+    </select>
+    <select id="getCity" resultType="java.lang.String">
+        select cname from sys_city where id  = (select pid from sys_city where id  = #{id} )
+    </select>
+    <select id="getProvince" resultType="java.lang.String">
+        select cname from sys_city where id = (select pid from sys_city where id  = (select pid from sys_city where id  = #{id} ))
+    </select>
+    <select id="getAddress" resultType="com.user.entity.Address">
+        SELECT value,cname as name from sys_city JOIN
+(SELECT count(*) as value, pid from user join sys_city on address = sys_city.id GROUP BY pid)as a
+on sys_city.id = a.pid
+    </select>
+    <select id="getName" resultType="com.user.entity.NameCount">
+        select substring(name,1,1)as name,count(*)as value from user group by substring(name,1,1)
+    </select>
+</mapper>
